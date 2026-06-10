@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ATELIER — AI Concierge for Fashion E-commerce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg-soft: #0f1424;
+    --card: #121829;
+    --card-2: #161d31;
+    --line: rgba(255, 255, 255, 0.08);
+    --line-2: rgba(255, 255, 255, 0.14);
+    --txt: #e8ecf4;
+    --txt-soft: #9aa6be;
+    --txt-mute: #6b7790;
+    --blue: #4f8ef7;
+    --green: #3ecf8e;
+    --orange: #f5a623;
+    --purple: #a78bfa;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--txt);
+    font-family: 'Manrope', system-ui, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Ambient glows */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(620px circle at 18% 8%, rgba(79, 142, 247, 0.13), transparent 60%),
+      radial-gradient(520px circle at 85% 22%, rgba(167, 139, 250, 0.10), transparent 55%),
+      radial-gradient(700px circle at 70% 95%, rgba(62, 207, 142, 0.07), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  h1, h2, h3, .display { font-family: 'Unbounded', sans-serif; letter-spacing: -0.02em; }
+
+  .mono { font-family: var(--mono); }
+
+  /* ── Section scaffolding ── */
+  section { padding: 92px 0; border-top: 1px solid var(--line); }
+  section:first-of-type { border-top: none; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--blue);
+    display: inline-block;
+    margin-bottom: 18px;
+  }
+  .eyebrow .num { color: var(--txt-mute); margin-right: 10px; }
+
+  .section-title {
+    font-size: clamp(28px, 4.5vw, 44px);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-lead { color: var(--txt-soft); max-width: 620px; font-size: 17px; }
+
+  .accent-blue { color: var(--blue); }
+  .accent-green { color: var(--green); }
+  .accent-orange { color: var(--orange); }
+  .accent-purple { color: var(--purple); }
+
+  /* ── Reveal animation ── */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .reveal.d1 { transition-delay: 0.08s; }
+  .reveal.d2 { transition-delay: 0.16s; }
+  .reveal.d3 { transition-delay: 0.24s; }
+
+  /* ════════════════ HERO ════════════════ */
+  .hero { padding: 132px 0 104px; border-top: none; }
+  .hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    color: var(--txt-soft);
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.02);
+    padding: 8px 16px;
+    border-radius: 999px;
+    margin-bottom: 32px;
+  }
+  .pulse-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); position: relative; }
+  .pulse-dot::after {
+    content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    70% { transform: scale(3); opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  .hero h1 {
+    font-size: clamp(40px, 7.5vw, 82px);
+    font-weight: 800;
+    line-height: 1.02;
+    margin-bottom: 28px;
+    max-width: 14ch;
+  }
+  .grad-text {
+    background: linear-gradient(120deg, var(--blue), var(--purple) 70%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero-sub { font-size: clamp(17px, 2.2vw, 21px); color: var(--txt-soft); max-width: 660px; margin-bottom: 44px; }
+
+  .meta-row { display: flex; flex-wrap: wrap; gap: 14px; }
+  .meta {
+    display: flex; flex-direction: column; gap: 3px;
+    border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px 20px 13px; background: rgba(255, 255, 255, 0.015);
+    min-width: 150px;
+  }
+  .meta .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--txt-mute); }
+  .meta .v { font-size: 15px; font-weight: 600; color: var(--txt); }
+
+  /* ════════════════ OVERVIEW (2×2) ════════════════ */
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 48px; }
+  .feature {
+    position: relative; overflow: hidden;
+    border: 1px solid var(--line); border-radius: 20px;
+    background: var(--card); padding: 32px 30px;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), border-color 0.4s, background 0.4s;
+  }
+  .feature::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--ac); transform: scaleX(0); transform-origin: left; transition: transform 0.5s ease;
+  }
+  .feature:hover { transform: translateY(-6px); border-color: var(--line-2); background: var(--card-2); }
+  .feature:hover::before { transform: scaleX(1); }
+  .feature .ic {
+    width: 54px; height: 54px; border-radius: 14px; display: grid; place-items: center;
+    font-size: 26px; margin-bottom: 20px;
+    background: color-mix(in srgb, var(--ac) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ac) 30%, transparent);
+  }
+  .feature h3 { font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+  .feature p { color: var(--txt-soft); font-size: 15px; }
+
+  /* ════════════════ WOW BANNER ════════════════ */
+  .wow-shell {
+    position: relative; border-radius: 24px; padding: 2px;
+    background: linear-gradient(120deg, var(--blue), var(--purple), var(--green), var(--blue));
+    background-size: 300% 300%; animation: flow 8s ease infinite;
+  }
+  @keyframes flow { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  .wow {
+    border-radius: 22px; background: #0c1120; padding: 54px 44px; text-align: center;
+  }
+  .wow .big { font-family: 'Unbounded'; font-size: clamp(26px, 4.4vw, 46px); font-weight: 700; line-height: 1.12; }
+  .wow .sub { color: var(--txt-soft); margin-top: 16px; font-size: 17px; max-width: 640px; margin-left: auto; margin-right: auto; }
+
+  /* ════════════════ ARCHITECTURE ════════════════ */
+  .flow { margin-top: 52px; position: relative; }
+  .step { position: relative; display: grid; grid-template-columns: 64px 1fr; gap: 26px; padding-bottom: 38px; }
+  .step:last-child { padding-bottom: 0; }
+  .step-num {
+    width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center;
+    font-family: 'Unbounded'; font-weight: 600; font-size: 17px; color: #fff;
+    background: color-mix(in srgb, var(--ac) 18%, var(--card));
+    border: 1.5px solid var(--ac); z-index: 2; position: relative;
+  }
+  .step::before {
+    content: ''; position: absolute; left: 27.5px; top: 56px; bottom: -2px; width: 1.5px;
+    background: linear-gradient(var(--line-2), transparent);
+  }
+  .step:last-child::before { display: none; }
+  .step-body { padding-top: 4px; }
+  .step-body h3 { font-size: 19px; font-weight: 600; margin-bottom: 8px; }
+  .step-body p { color: var(--txt-soft); font-size: 15px; max-width: 640px; }
+  .hint {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 16px; margin-top: 14px; font-size: 14px; color: var(--txt-soft); max-width: 640px;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .tag {
+    font-family: var(--mono); font-size: 12px; color: var(--txt-soft);
+    border: 1px solid var(--line); border-radius: 7px; padding: 4px 10px; background: rgba(255,255,255,0.02);
+  }
+
+  /* ════════════════ DATA ════════════════ */
+  .schemas { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 48px; }
+  .schema { border: 1px solid var(--line); border-radius: 20px; background: var(--card); overflow: hidden; }
+  .schema-head {
+    display: flex; align-items: center; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.02);
+  }
+  .schema-head .ic { font-size: 20px; }
+  .schema-head .t { font-family: var(--mono); font-size: 15px; color: var(--txt); letter-spacing: 0.02em; }
+  .schema-head .badge { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--txt-mute); }
+  .field { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 14px 24px; border-bottom: 1px solid var(--line); }
+  .field:last-child { border-bottom: none; }
+  .field .fname { font-family: var(--mono); font-size: 13.5px; color: var(--blue); }
+  .field .ftype { font-family: var(--mono); font-size: 11.5px; color: var(--txt-mute); align-self: center; text-align: right; }
+  .field .fdesc { grid-column: 1 / -1; font-size: 13.5px; color: var(--txt-soft); }
+
+  /* ════════════════ PREVIEW (phone) ════════════════ */
+  .preview-stage { margin-top: 52px; display: flex; justify-content: center; }
+  .phone {
+    width: 390px; max-width: 100%; border-radius: 42px; padding: 14px;
+    background: linear-gradient(165deg, #1a2236, #0c1120);
+    border: 1px solid var(--line-2); box-shadow: 0 40px 90px -30px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.03) inset;
+  }
+  .phone-screen { background: #0b0f1c; border-radius: 30px; overflow: hidden; }
+  .phone-notch { height: 26px; display: flex; justify-content: center; }
+  .phone-notch::after { content: ''; width: 120px; height: 22px; background: #06090f; border-radius: 0 0 16px 16px; }
+  .chat-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); background: #0d1322; }
+  .chat-av { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--purple)); display: grid; place-items: center; font-family: 'Unbounded'; font-weight: 600; color: #fff; }
+  .chat-head .nm { font-weight: 600; font-size: 15px; }
+  .chat-head .st { font-size: 11.5px; color: var(--green); display: flex; align-items: center; gap: 6px; }
+  .chat-body { padding: 18px 16px 22px; display: flex; flex-direction: column; gap: 12px; }
+  .bub { max-width: 82%; padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.5; }
+  .bub.a { background: #18203400; background: rgba(255,255,255,0.05); border: 1px solid var(--line); align-self: flex-start; border-top-left-radius: 5px; }
+  .bub.u { background: linear-gradient(135deg, var(--blue), #3f7be0); color: #fff; align-self: flex-end; border-top-right-radius: 5px; }
+  .bub .sm { display: block; color: var(--txt-mute); font-size: 11px; margin-top: 4px; }
+
+  /* order card inside chat */
+  .ocard { align-self: flex-start; width: 90%; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,0.03); overflow: hidden; }
+  .ocard-h { display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  .ocard-h .id { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+  .ocard-h .stt { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; background: var(--green); color: #06281b; padding: 3px 9px; border-radius: 999px; font-weight: 700; }
+  .rail { display: flex; align-items: center; padding: 16px 14px 10px; }
+  .rail .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .rail .dot.todo { background: #2b3550; }
+  .rail .seg { height: 2px; flex: 1; background: var(--green); }
+  .rail .seg.todo { background: #2b3550; }
+  .ocard-f { padding: 0 14px 14px; font-size: 12px; color: var(--txt-soft); }
+  .ocard-f b { color: var(--txt); font-weight: 600; }
+
+  /* ════════════════ LAUNCH ════════════════ */
+  .steps-list { margin-top: 48px; display: flex; flex-direction: column; gap: 16px; counter-reset: ls; }
+  .lstep {
+    display: grid; grid-template-columns: 46px 1fr; gap: 20px; align-items: start;
+    border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 22px 26px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .lstep:hover { border-color: var(--line-2); background: var(--card-2); }
+  .lstep .ln { counter-increment: ls; font-family: 'Unbounded'; font-weight: 600; font-size: 18px; color: var(--blue); }
+  .lstep .ln::before { content: counter(ls, decimal-leading-zero); }
+  .lstep h3 { font-size: 17px; font-weight: 600; margin-bottom: 5px; }
+  .lstep p { color: var(--txt-soft); font-size: 14.5px; }
+
+  /* ════════════════ RESULT ════════════════ */
+  .results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 48px; }
+  .result {
+    border: 1px solid var(--line); border-radius: 20px; background: var(--card); padding: 38px 30px; text-align: center;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), border-color 0.4s;
+  }
+  .result:hover { transform: translateY(-6px); border-color: var(--line-2); }
+  .result .figure { font-family: 'Unbounded'; font-weight: 700; font-size: clamp(38px, 6vw, 56px); line-height: 1; background: linear-gradient(120deg, var(--blue), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .result p { color: var(--txt-soft); margin-top: 14px; font-size: 15px; }
+
+  /* ════════════════ STACK ════════════════ */
+  .stack { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 48px; }
+  .tech { display: flex; gap: 18px; align-items: flex-start; border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 24px 26px; transition: border-color 0.3s, transform 0.3s; }
+  .tech:hover { border-color: var(--line-2); transform: translateY(-3px); }
+  .tech .ic { font-size: 26px; width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: rgba(255,255,255,0.04); flex-shrink: 0; }
+  .tech h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .tech p { color: var(--txt-soft); font-size: 14px; }
+
+  /* ════════════════ FOOTER ════════════════ */
+  footer { border-top: 1px solid var(--line); padding: 54px 0 70px; text-align: center; }
+  footer .brand { font-family: 'Unbounded'; font-weight: 700; letter-spacing: 0.3em; font-size: 22px; }
+  footer p { color: var(--txt-mute); font-size: 13px; margin-top: 12px; font-family: var(--mono); }
+
+  /* ── Responsive ── */
+  @media (max-width: 860px) {
+    .grid-2, .schemas, .results, .stack { grid-template-columns: 1fr; }
+    .results { gap: 16px; }
+    section { padding: 70px 0; }
+  }
+  @media (max-width: 480px) {
+    .wrap { padding: 0 18px; }
+    .feature, .wow, .lstep { padding-left: 22px; padding-right: 22px; }
+    .step { grid-template-columns: 50px 1fr; gap: 18px; }
+    .step::before { left: 24.5px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ HERO ════════════════ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-label reveal in"><span class="pulse-dot"></span>// ATELIER · AI CONCIERGE</div>
+    <h1 class="reveal in d1">A smart <span class="grad-text">concierge</span> for a premium fashion store</h1>
+    <p class="hero-sub reveal in d2">
+      ATELIER is an online boutique with a built-in AI assistant named <b>Aria</b>, who talks to shoppers
+      like a seasoned stylist: curates outfits, advises on sizing, tracks orders, and answers questions about
+      shipping and returns. The store owner manages everything from a friendly dashboard — <b>without a single line of code</b>.
+    </p>
+    <div class="meta-row reveal in d3">
+      <div class="meta"><span class="k">Platform</span><span class="v">Web · React</span></div>
+      <div class="meta"><span class="k">Database</span><span class="v">Supabase · PostgreSQL</span></div>
+      <div class="meta"><span class="k">AI</span><span class="v">GPT-4o via n8n</span></div>
+      <div class="meta"><span class="k">Languages</span><span class="v">EN · ES · FR · UK</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════ 1. OVERVIEW ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">01</span>Overview</span>
+    <h2 class="section-title reveal">What it is</h2>
+    <p class="section-lead reveal">Four things that make ATELIER not just a store, but a living service.</p>
+
+    <div class="grid-2">
+      <div class="feature reveal" style="--ac: var(--blue)">
+        <div class="ic">🤖</div>
+        <h3>The Aria concierge, 24/7</h3>
+        <p>A live chat assistant that replies instantly at any hour. It recommends products, explains policies, and guides the customer all the way to purchase — in your brand's voice.</p>
+      </div>
+      <div class="feature reveal d1" style="--ac: var(--green)">
+        <div class="ic">🛍️</div>
+        <h3>Answers with live cards</h3>
+        <p>Instead of plain text, Aria shows an order timeline, product carousels, size charts, and policy quotes. The customer sees it — not just reads it.</p>
+      </div>
+      <div class="feature reveal" style="--ac: var(--orange)">
+        <div class="ic">🎛️</div>
+        <h3>No-code management</h3>
+        <p>Catalogue, prices, photos, knowledge base, and even the bot's personality are editable in a visual panel. Changes instantly shape Aria's answers — no developer needed.</p>
+      </div>
+      <div class="feature reveal d1" style="--ac: var(--purple)">
+        <div class="ic">📊</div>
+        <h3>Transparent analytics & ROI</h3>
+        <p>Every conversation is saved. The dashboard shows real numbers: how many requests the AI resolved, customer ratings, and how much money it saved.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 2. WOW BANNER ════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="wow-shell reveal">
+      <div class="wow">
+        <div class="big">⚡ Aria resolves up to <span class="grad-text">7 in 10</span> requests on her own —<br />in seconds, without a single agent</div>
+        <p class="sub">Around the clock, in four languages. The customer gets an instant answer, while your team is freed from routine questions about sizing, shipping, and order status.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 3. ARCHITECTURE ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">02</span>Architecture</span>
+    <h2 class="section-title reveal">How it works</h2>
+    <p class="section-lead reveal">The path from a customer's question to a beautiful answer — in a few seconds.</p>
+
+    <div class="flow">
+      <div class="step reveal" style="--ac: var(--blue)">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3>The customer writes in the chat</h3>
+          <p>Aria greets the visitor and offers quick prompts — "Help me with sizing," "Where's my order," "Style me an outfit." The conversation feels like a regular messenger.</p>
+        </div>
+      </div>
+
+      <div class="step reveal" style="--ac: var(--purple)">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3>The system gathers context</h3>
+          <p>The question is enriched with up-to-date store information: the catalogue with stock levels, policies, size charts, the customer's orders, and the bot's personality. Aria always answers from real data, never makes things up.</p>
+          <div class="tags"><span class="tag">StoreContext</span><span class="tag">Zustand</span><span class="tag">live stock</span></div>
+        </div>
+      </div>
+
+      <div class="step reveal" style="--ac: var(--green)">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3>The AI crafts the answer</h3>
+          <p>The request goes to n8n, where the GPT-4o model runs with your brand's instructions. It decides what to say and which card to show — for example, order tracking or a product selection.</p>
+          <div class="tags"><span class="tag">n8n webhook</span><span class="tag">GPT-4o</span><span class="tag">brand persona</span></div>
+        </div>
+      </div>
+
+      <div class="step reveal" style="--ac: var(--orange)">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <h3>The answer comes alive as a card</h3>
+          <p>The app turns the response into a visual element: a delivery timeline, product carousels, a size chart, or a policy quote — with photos, prices, and statuses.</p>
+          <div class="tags"><span class="tag">order timeline</span><span class="tag">product carousel</span><span class="tag">size chart</span></div>
+        </div>
+      </div>
+
+      <div class="step reveal" style="--ac: var(--blue)">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <h3>Everything is stored in Supabase</h3>
+          <p>Every exchange lands in a secure database. The admin panel shows conversations in real time and computes analytics. Data access is strictly scoped by security rules.</p>
+          <div class="tags"><span class="tag">PostgreSQL</span><span class="tag">Row-Level Security</span><span class="tag">live feed</span></div>
+        </div>
+      </div>
+
+      <div class="step reveal" style="--ac: var(--green)">
+        <div class="step-num">06</div>
+        <div class="step-body">
+          <h3>A fallback engine that never goes down</h3>
+          <p>If the AI service is temporarily unavailable, a local assistant kicks in and answers on its own. The store and the chat always keep working.</p>
+          <div class="hint"><span>💡</span><span>This guarantees that a client demo or a live storefront never "freezes" because of an external outage.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 4. DATA ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">03</span>Data</span>
+    <h2 class="section-title reveal">What gets stored</h2>
+    <p class="section-lead reveal">Two key stores: the product catalogue and the log of every conversation with Aria.</p>
+
+    <div class="schemas">
+      <div class="schema reveal">
+        <div class="schema-head">
+          <span class="ic">👗</span><span class="t">products</span><span class="badge">catalogue</span>
+        </div>
+        <div class="field"><span class="fname">name</span><span class="ftype">string</span><span class="fdesc">Product name — e.g. "Camille Wool Overcoat"</span></div>
+        <div class="field"><span class="fname">category</span><span class="ftype">string</span><span class="fdesc">Category: outerwear, knitwear, dresses…</span></div>
+        <div class="field"><span class="fname">price</span><span class="ftype">numeric</span><span class="fdesc">Price in the store's currency</span></div>
+        <div class="field"><span class="fname">sizes</span><span class="ftype">jsonb</span><span class="fdesc">Stock per size — so the AI can say "only 2 left in M"</span></div>
+        <div class="field"><span class="fname">image</span><span class="ftype">string</span><span class="fdesc">Photo link (uploaded from the panel)</span></div>
+        <div class="field"><span class="fname">featured</span><span class="ftype">boolean</span><span class="fdesc">Whether to show it in "Bestsellers"</span></div>
+        <div class="field"><span class="fname">created_at</span><span class="ftype">datetime</span><span class="fdesc">Date added — for the "New In" ordering</span></div>
+      </div>
+
+      <div class="schema reveal d1">
+        <div class="schema-head">
+          <span class="ic">💬</span><span class="t">conversations</span><span class="badge">AI log</span>
+        </div>
+        <div class="field"><span class="fname">user_message</span><span class="ftype">string</span><span class="fdesc">What the customer wrote</span></div>
+        <div class="field"><span class="fname">assistant_message</span><span class="ftype">string</span><span class="fdesc">What Aria replied</span></div>
+        <div class="field"><span class="fname">intent</span><span class="ftype">string</span><span class="fdesc">Request topic: sizing, shipping, order…</span></div>
+        <div class="field"><span class="fname">deflected</span><span class="ftype">boolean</span><span class="fdesc">Whether it was resolved without a human</span></div>
+        <div class="field"><span class="fname">helpful</span><span class="ftype">boolean</span><span class="fdesc">Customer rating 👍 / 👎</span></div>
+        <div class="field"><span class="fname">language</span><span class="ftype">string</span><span class="fdesc">Conversation language (EN / ES / FR / UK)</span></div>
+        <div class="field"><span class="fname">created_at</span><span class="ftype">datetime</span><span class="fdesc">Exchange time — for the feed and analytics</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 5. PREVIEW ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">04</span>Preview</span>
+    <h2 class="section-title reveal">What it looks like</h2>
+    <p class="section-lead reveal">A real conversation with Aria — with an actual order and the store's products.</p>
+
+    <div class="preview-stage reveal">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="chat-head">
+            <div class="chat-av">A</div>
+            <div>
+              <div class="nm">Aria</div>
+              <div class="st"><span class="pulse-dot"></span>Online · style concierge</div>
+            </div>
+          </div>
+          <div class="chat-body">
+            <div class="bub a">Welcome to ATELIER! I'm Aria 👋 I can help with sizing, your order, or putting together a look. What can I do for you?</div>
+
+            <div class="bub u">Where's my order ATL-1024?</div>
+
+            <div class="bub a">It's already on its way — the courier will deliver it today. Here are the details:</div>
+            <div class="ocard">
+              <div class="ocard-h"><span class="id">ATL-1024</span><span class="stt">Out for delivery</span></div>
+              <div class="rail">
+                <span class="dot"></span><span class="seg"></span>
+                <span class="dot"></span><span class="seg"></span>
+                <span class="dot"></span><span class="seg"></span>
+                <span class="dot"></span><span class="seg todo"></span>
+                <span class="dot todo"></span>
+              </div>
+              <div class="ocard-f">📦 <b>Today by 8:00 PM</b> · DHL Express · DH 4471 9920 18<br />Camille Wool Overcoat (S) · Wren Cashmere Scarf</div>
+            </div>
+
+            <div class="bub u">I'm between S and M in the Lina Merino Crewneck</div>
+            <div class="bub a">The Lina runs true to size, so for your usual fit go with <b>S</b>, and for a looser, oversized look — <b>M</b>. Want me to check whether M is in stock?
+              <span class="sm">Source: Sizing &amp; Fit</span>
+            </div>
+
+            <div class="bub u">And is shipping free?</div>
+            <div class="bub a">Standard shipping is <b>complimentary on orders over $150</b> (3–5 business days). Express in 2 days is $18.
+              <span class="sm">Source: Shipping Policy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 6. LAUNCH ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">05</span>Launch</span>
+    <h2 class="section-title reveal">What it takes to go live</h2>
+    <p class="section-lead reveal">Five steps from zero to a live store with an AI concierge.</p>
+
+    <div class="steps-list">
+      <div class="lstep reveal"><span class="ln"></span>
+        <div><h3>Create a Supabase project</h3><p>A cloud database to hold accounts, orders, the catalogue, and all conversations. The free tier is plenty to start.</p></div>
+      </div>
+      <div class="lstep reveal"><span class="ln"></span>
+        <div><h3>Apply the data schema</h3><p>A ready set of migrations creates all the tables and sets up the security rules (who sees what). It runs in a few clicks.</p></div>
+      </div>
+      <div class="lstep reveal"><span class="ln"></span>
+        <div><h3>Connect the AI brain</h3><p>Import the ready-made n8n workflow and paste in your OpenAI key. This is where Aria's intelligence "lives" — keys never reach the browser.</p></div>
+      </div>
+      <div class="lstep reveal"><span class="ln"></span>
+        <div><h3>Fill in the settings</h3><p>Add the Supabase and n8n addresses to the config file. Without them the store still works — in demo mode with sample data.</p></div>
+      </div>
+      <div class="lstep reveal"><span class="ln"></span>
+        <div><h3>Build and deploy</h3><p>A single command builds the finished site into static files that drop onto any server or VPS. To update — just rebuild.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 7. RESULT ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">06</span>Result</span>
+    <h2 class="section-title reveal">What changes after launch</h2>
+    <p class="section-lead reveal">Less routine for the team, faster answers for customers, round-the-clock service.</p>
+
+    <div class="results">
+      <div class="result reveal"><div class="figure">~71%</div><p>of routine requests resolved by the AI without an agent</p></div>
+      <div class="result reveal d1"><div class="figure">&lt; 3 s</div><p>from question to a complete answer with a visual card</p></div>
+      <div class="result reveal d2"><div class="figure">24/7</div><p>support in four languages, no days off and no breaks</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 8. STACK ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">07</span>Stack</span>
+    <h2 class="section-title reveal">Technology under the hood</h2>
+    <p class="section-lead reveal">Modern, reliable tools — each with a clear role.</p>
+
+    <div class="stack">
+      <div class="tech reveal"><div class="ic">⚛️</div><div><h3>React · TypeScript · Vite</h3><p>A fast, smooth interface for the storefront and the admin panel.</p></div></div>
+      <div class="tech reveal d1"><div class="ic">🗄️</div><div><h3>Supabase · PostgreSQL</h3><p>Accounts, orders, catalogue, and conversations — with row-level access protection.</p></div></div>
+      <div class="tech reveal"><div class="ic">🧠</div><div><h3>n8n · GPT-4o</h3><p>The brain of the Aria concierge: understands the request and decides what to answer.</p></div></div>
+      <div class="tech reveal d1"><div class="ic">🎨</div><div><h3>Tailwind CSS · Zustand</h3><p>A single design system and application state management.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand">ATELIER</div>
+    <p>// fashion e-commerce · AI concierge · 2026</p>
+  </div>
+</footer>
+
+<script>
+  // Scroll-reveal: fade elements in as they enter the viewport.
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal:not(.in)').forEach((el) => io.observe(el));
+</script>
+
+</body>
+</html>
