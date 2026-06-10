@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ATELIER — AI-консьєрж для fashion e-commerce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg-soft: #0f1424;
+    --card: #121829;
+    --card-2: #161d31;
+    --line: rgba(255, 255, 255, 0.08);
+    --line-2: rgba(255, 255, 255, 0.14);
+    --txt: #e8ecf4;
+    --txt-soft: #9aa6be;
+    --txt-mute: #6b7790;
+    --blue: #4f8ef7;
+    --green: #3ecf8e;
+    --orange: #f5a623;
+    --purple: #a78bfa;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--txt);
+    font-family: 'Manrope', system-ui, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Ambient glows */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(620px circle at 18% 8%, rgba(79, 142, 247, 0.13), transparent 60%),
+      radial-gradient(520px circle at 85% 22%, rgba(167, 139, 250, 0.10), transparent 55%),
+      radial-gradient(700px circle at 70% 95%, rgba(62, 207, 142, 0.07), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  h1, h2, h3, .display { font-family: 'Unbounded', sans-serif; letter-spacing: -0.02em; }
+
+  .mono { font-family: var(--mono); }
+
+  /* ── Section scaffolding ── */
+  section { padding: 92px 0; border-top: 1px solid var(--line); }
+  section:first-of-type { border-top: none; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--blue);
+    display: inline-block;
+    margin-bottom: 18px;
+  }
+  .eyebrow .num { color: var(--txt-mute); margin-right: 10px; }
+
+  .section-title {
+    font-size: clamp(28px, 4.5vw, 44px);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .section-lead { color: var(--txt-soft); max-width: 620px; font-size: 17px; }
+
+  .accent-blue { color: var(--blue); }
+  .accent-green { color: var(--green); }
+  .accent-orange { color: var(--orange); }
+  .accent-purple { color: var(--purple); }
+
+  /* ── Reveal animation ── */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .reveal.d1 { transition-delay: 0.08s; }
+  .reveal.d2 { transition-delay: 0.16s; }
+  .reveal.d3 { transition-delay: 0.24s; }
+
+  /* ════════════════ HERO ════════════════ */
+  .hero { padding: 132px 0 104px; border-top: none; }
+  .hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    color: var(--txt-soft);
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.02);
+    padding: 8px 16px;
+    border-radius: 999px;
+    margin-bottom: 32px;
+  }
+  .pulse-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); position: relative; }
+  .pulse-dot::after {
+    content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    70% { transform: scale(3); opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  .hero h1 {
+    font-size: clamp(40px, 7.5vw, 82px);
+    font-weight: 800;
+    line-height: 1.02;
+    margin-bottom: 28px;
+    max-width: 14ch;
+  }
+  .grad-text {
+    background: linear-gradient(120deg, var(--blue), var(--purple) 70%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero-sub { font-size: clamp(17px, 2.2vw, 21px); color: var(--txt-soft); max-width: 660px; margin-bottom: 44px; }
+
+  .meta-row { display: flex; flex-wrap: wrap; gap: 14px; }
+  .meta {
+    display: flex; flex-direction: column; gap: 3px;
+    border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px 20px 13px; background: rgba(255, 255, 255, 0.015);
+    min-width: 150px;
+  }
+  .meta .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--txt-mute); }
+  .meta .v { font-size: 15px; font-weight: 600; color: var(--txt); }
+
+  /* ════════════════ OVERVIEW (2×2) ════════════════ */
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 48px; }
+  .feature {
+    position: relative; overflow: hidden;
+    border: 1px solid var(--line); border-radius: 20px;
+    background: var(--card); padding: 32px 30px;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), border-color 0.4s, background 0.4s;
+  }
+  .feature::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--ac); transform: scaleX(0); transform-origin: left; transition: transform 0.5s ease;
+  }
+  .feature:hover { transform: translateY(-6px); border-color: var(--line-2); background: var(--card-2); }
+  .feature:hover::before { transform: scaleX(1); }
+  .feature .ic {
+    width: 54px; height: 54px; border-radius: 14px; display: grid; place-items: center;
+    font-size: 26px; margin-bottom: 20px;
+    background: color-mix(in srgb, var(--ac) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ac) 30%, transparent);
+  }
+  .feature h3 { font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+  .feature p { color: var(--txt-soft); font-size: 15px; }
+
+  /* ════════════════ WOW BANNER ════════════════ */
+  .wow-shell {
+    position: relative; border-radius: 24px; padding: 2px;
+    background: linear-gradient(120deg, var(--blue), var(--purple), var(--green), var(--blue));
+    background-size: 300% 300%; animation: flow 8s ease infinite;
+  }
+  @keyframes flow { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  .wow {
+    border-radius: 22px; background: #0c1120; padding: 54px 44px; text-align: center;
+  }
+  .wow .big { font-family: 'Unbounded'; font-size: clamp(26px, 4.4vw, 46px); font-weight: 700; line-height: 1.12; }
+  .wow .sub { color: var(--txt-soft); margin-top: 16px; font-size: 17px; max-width: 640px; margin-left: auto; margin-right: auto; }
+
+  /* ════════════════ ARCHITECTURE ════════════════ */
+  .flow { margin-top: 52px; position: relative; }
+  .step { position: relative; display: grid; grid-template-columns: 64px 1fr; gap: 26px; padding-bottom: 38px; }
+  .step:last-child { padding-bottom: 0; }
+  .step-num {
+    width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center;
+    font-family: 'Unbounded'; font-weight: 600; font-size: 17px; color: #fff;
+    background: color-mix(in srgb, var(--ac) 18%, var(--card));
+    border: 1.5px solid var(--ac); z-index: 2; position: relative;
+  }
+  .step::before {
+    content: ''; position: absolute; left: 27.5px; top: 56px; bottom: -2px; width: 1.5px;
+    background: linear-gradient(var(--line-2), transparent);
+  }
+  .step:last-child::before { display: none; }
+  .step-body { padding-top: 4px; }
+  .step-body h3 { font-size: 19px; font-weight: 600; margin-bottom: 8px; }
+  .step-body p { color: var(--txt-soft); font-size: 15px; max-width: 640px; }
+  .hint {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 16px; margin-top: 14px; font-size: 14px; color: var(--txt-soft); max-width: 640px;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .tag {
+    font-family: var(--mono); font-size: 12px; color: var(--txt-soft);
+    border: 1px solid var(--line); border-radius: 7px; padding: 4px 10px; background: rgba(255,255,255,0.02);
+  }
+
+  /* ════════════════ DATA ════════════════ */
+  .schemas { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 48px; }
+  .schema { border: 1px solid var(--line); border-radius: 20px; background: var(--card); overflow: hidden; }
+  .schema-head {
+    display: flex; align-items: center; gap: 12px; padding: 20px 24px; border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.02);
+  }
+  .schema-head .ic { font-size: 20px; }
+  .schema-head .t { font-family: var(--mono); font-size: 15px; color: var(--txt); letter-spacing: 0.02em; }
+  .schema-head .badge { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--txt-mute); }
+  .field { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 14px 24px; border-bottom: 1px solid var(--line); }
+  .field:last-child { border-bottom: none; }
+  .field .fname { font-family: var(--mono); font-size: 13.5px; color: var(--blue); }
+  .field .ftype { font-family: var(--mono); font-size: 11.5px; color: var(--txt-mute); align-self: center; text-align: right; }
+  .field .fdesc { grid-column: 1 / -1; font-size: 13.5px; color: var(--txt-soft); }
+
+  /* ════════════════ PREVIEW (phone) ════════════════ */
+  .preview-stage { margin-top: 52px; display: flex; justify-content: center; }
+  .phone {
+    width: 390px; max-width: 100%; border-radius: 42px; padding: 14px;
+    background: linear-gradient(165deg, #1a2236, #0c1120);
+    border: 1px solid var(--line-2); box-shadow: 0 40px 90px -30px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.03) inset;
+  }
+  .phone-screen { background: #0b0f1c; border-radius: 30px; overflow: hidden; }
+  .phone-notch { height: 26px; display: flex; justify-content: center; }
+  .phone-notch::after { content: ''; width: 120px; height: 22px; background: #06090f; border-radius: 0 0 16px 16px; }
+  .chat-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); background: #0d1322; }
+  .chat-av { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), var(--purple)); display: grid; place-items: center; font-family: 'Unbounded'; font-weight: 600; color: #fff; }
+  .chat-head .nm { font-weight: 600; font-size: 15px; }
+  .chat-head .st { font-size: 11.5px; color: var(--green); display: flex; align-items: center; gap: 6px; }
+  .chat-body { padding: 18px 16px 22px; display: flex; flex-direction: column; gap: 12px; }
+  .bub { max-width: 82%; padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.5; }
+  .bub.a { background: #18203400; background: rgba(255,255,255,0.05); border: 1px solid var(--line); align-self: flex-start; border-top-left-radius: 5px; }
+  .bub.u { background: linear-gradient(135deg, var(--blue), #3f7be0); color: #fff; align-self: flex-end; border-top-right-radius: 5px; }
+  .bub .sm { display: block; color: var(--txt-mute); font-size: 11px; margin-top: 4px; }
+
+  /* order card inside chat */
+  .ocard { align-self: flex-start; width: 90%; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,0.03); overflow: hidden; }
+  .ocard-h { display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  .ocard-h .id { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+  .ocard-h .stt { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; background: var(--green); color: #06281b; padding: 3px 9px; border-radius: 999px; font-weight: 700; }
+  .rail { display: flex; align-items: center; padding: 16px 14px 10px; }
+  .rail .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .rail .dot.todo { background: #2b3550; }
+  .rail .seg { height: 2px; flex: 1; background: var(--green); }
+  .rail .seg.todo { background: #2b3550; }
+  .ocard-f { padding: 0 14px 14px; font-size: 12px; color: var(--txt-soft); }
+  .ocard-f b { color: var(--txt); font-weight: 600; }
+
+  /* ════════════════ LAUNCH ════════════════ */
+  .steps-list { margin-top: 48px; display: flex; flex-direction: column; gap: 16px; counter-reset: ls; }
+  .lstep {
+    display: grid; grid-template-columns: 46px 1fr; gap: 20px; align-items: start;
+    border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 22px 26px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .lstep:hover { border-color: var(--line-2); background: var(--card-2); }
+  .lstep .ln { counter-increment: ls; font-family: 'Unbounded'; font-weight: 600; font-size: 18px; color: var(--blue); }
+  .lstep .ln::before { content: counter(ls, decimal-leading-zero); }
+  .lstep h3 { font-size: 17px; font-weight: 600; margin-bottom: 5px; }
+  .lstep p { color: var(--txt-soft); font-size: 14.5px; }
+
+  /* ════════════════ RESULT ════════════════ */
+  .results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 48px; }
+  .result {
+    border: 1px solid var(--line); border-radius: 20px; background: var(--card); padding: 38px 30px; text-align: center;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), border-color 0.4s;
+  }
+  .result:hover { transform: translateY(-6px); border-color: var(--line-2); }
+  .result .figure { font-family: 'Unbounded'; font-weight: 700; font-size: clamp(38px, 6vw, 56px); line-height: 1; background: linear-gradient(120deg, var(--blue), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .result p { color: var(--txt-soft); margin-top: 14px; font-size: 15px; }
+
+  /* ════════════════ STACK ════════════════ */
+  .stack { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 48px; }
+  .tech { display: flex; gap: 18px; align-items: flex-start; border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 24px 26px; transition: border-color 0.3s, transform 0.3s; }
+  .tech:hover { border-color: var(--line-2); transform: translateY(-3px); }
+  .tech .ic { font-size: 26px; width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: rgba(255,255,255,0.04); flex-shrink: 0; }
+  .tech h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .tech p { color: var(--txt-soft); font-size: 14px; }
+
+  /* ════════════════ FOOTER ════════════════ */
+  footer { border-top: 1px solid var(--line); padding: 54px 0 70px; text-align: center; }
+  footer .brand { font-family: 'Unbounded'; font-weight: 700; letter-spacing: 0.3em; font-size: 22px; }
+  footer p { color: var(--txt-mute); font-size: 13px; margin-top: 12px; font-family: var(--mono); }
+
+  /* ── Responsive ── */
+  @media (max-width: 860px) {
+    .grid-2, .schemas, .results, .stack { grid-template-columns: 1fr; }
+    .results { gap: 16px; }
+    section { padding: 70px 0; }
+  }
+  @media (max-width: 480px) {
+    .wrap { padding: 0 18px; }
+    .feature, .wow, .lstep { padding-left: 22px; padding-right: 22px; }
+    .step { grid-template-columns: 50px 1fr; gap: 18px; }
+    .step::before { left: 24.5px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ HERO ════════════════ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-label reveal in"><span class="pulse-dot"></span>// ATELIER · AI CONCIERGE</div>
+    <h1 class="reveal in d1">Розумний <span class="grad-text">консьєрж</span> для преміального fashion-магазину</h1>
+    <p class="hero-sub reveal in d2">
+      ATELIER — це інтернет-бутік із вбудованим AI-помічником на ім'я <b>Aria</b>, який спілкується з покупцями
+      як досвідчений стиліст: підбирає образи, радить розмір, відстежує замовлення й відповідає на питання про
+      доставку та повернення. Власник магазину керує всім із зручної панелі — <b>без жодного рядка коду</b>.
+    </p>
+    <div class="meta-row reveal in d3">
+      <div class="meta"><span class="k">Платформа</span><span class="v">Web · React</span></div>
+      <div class="meta"><span class="k">База даних</span><span class="v">Supabase · PostgreSQL</span></div>
+      <div class="meta"><span class="k">AI</span><span class="v">GPT-4o через n8n</span></div>
+      <div class="meta"><span class="k">Мови</span><span class="v">EN · ES · FR · UK</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════ 1. ОГЛЯД ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">01</span>Огляд</span>
+    <h2 class="section-title reveal">Що це таке</h2>
+    <p class="section-lead reveal">Чотири речі, які роблять ATELIER не просто магазином, а живим сервісом.</p>
+
+    <div class="grid-2">
+      <div class="feature reveal" style="--ac: var(--blue)">
+        <div class="ic">🤖</div>
+        <h3>Консьєрж Aria 24/7</h3>
+        <p>Живий помічник у чаті, що відповідає миттєво будь-якої години. Радить товари, пояснює політики, веде клієнта аж до покупки — голосом вашого бренду.</p>
+      </div>
+      <div class="feature reveal d1" style="--ac: var(--green)">
+        <div class="ic">🛍️</div>
+        <h3>Відповіді з живими картками</h3>
+        <p>Замість сухого тексту Aria показує таймлайн замовлення, каруселі товарів, таблиці розмірів і цитати з політик. Клієнт бачить — а не лише читає.</p>
+      </div>
+      <div class="feature reveal" style="--ac: var(--orange)">
+        <div class="ic">🎛️</div>
+        <h3>Керування без коду</h3>
+        <p>Каталог, ціни, фото, база знань і навіть характер бота редагуються у візуальній панелі. Зміни одразу впливають на відповіді Aria — без розробника.</p>
+      </div>
+      <div class="feature reveal d1" style="--ac: var(--purple)">
+        <div class="ic">📊</div>
+        <h3>Прозора аналітика та ROI</h3>
+        <p>Кожна розмова зберігається. Дашборд показує реальні цифри: скільки звернень закрив AI, оцінки клієнтів і скільки грошей це зекономило.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 2. WOW-БАНЕР ════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="wow-shell reveal">
+      <div class="wow">
+        <div class="big">⚡ До <span class="grad-text">7 із 10</span> звернень Aria закриває сама —<br />за секунди, без жодного оператора</div>
+        <p class="sub">Цілодобово, чотирма мовами. Клієнт отримує відповідь миттєво, а ваша команда звільняється від рутинних питань про розміри, доставку й статус замовлень.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 3. АРХІТЕКТУРА ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">02</span>Архітектура</span>
+    <h2 class="section-title reveal">Як це працює</h2>
+    <p class="section-lead reveal">Шлях від запитання клієнта до красивої відповіді — за кілька секунд.</p>
+
+    <div class="flow">
+      <div class="step reveal" style="--ac: var(--blue)">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <h3>Клієнт пише в чат</h3>
+          <p>Aria вітає відвідувача й пропонує швидкі підказки — «Допоможи з розміром», «Де моє замовлення», «Підбери образ». Спілкування виглядає як звичайний месенджер.</p>
+        </div>
+      </div>
+
+      <div class="step reveal" style="--ac: var(--purple)">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <h3>Система збирає контекст</h3>
+          <p>До питання додається актуальна інформація магазину: каталог із залишками, політики, розмірні сітки, замовлення клієнта й характер бота. Aria завжди відповідає на основі справжніх даних, а не вигадує.</p>
+          <div class="tags"><span class="tag">StoreContext</span><span class="tag">Zustand</span><span class="tag">актуальні залишки</span></div>
+        </div>
+      </div>
+
+      <div class="step reveal" style="--ac: var(--green)">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <h3>AI формує відповідь</h3>
+          <p>Запит надходить у n8n, де працює модель GPT-4o з інструкціями вашого бренду. Вона вирішує, що сказати і яку картку показати — наприклад, відстеження замовлення чи добірку товарів.</p>
+          <div class="tags"><span class="tag">n8n webhook</span><span class="tag">GPT-4o</span><span class="tag">brand persona</span></div>
+        </div>
+      </div>
+
+      <div class="step reveal" style="--ac: var(--orange)">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <h3>Відповідь оживає карткою</h3>
+          <p>Додаток перетворює відповідь на наочний елемент: таймлайн доставки, каруселі товарів, таблицю розмірів чи цитату з політики — з фото, цінами й статусами.</p>
+          <div class="tags"><span class="tag">order timeline</span><span class="tag">product carousel</span><span class="tag">size chart</span></div>
+        </div>
+      </div>
+
+      <div class="step reveal" style="--ac: var(--blue)">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <h3>Усе зберігається в Supabase</h3>
+          <p>Кожен обмін потрапляє в захищену базу даних. Адмін-панель показує розмови в реальному часі й рахує аналітику. Доступ до даних суворо розмежований правилами безпеки.</p>
+          <div class="tags"><span class="tag">PostgreSQL</span><span class="tag">Row-Level Security</span><span class="tag">live feed</span></div>
+        </div>
+      </div>
+
+      <div class="step reveal" style="--ac: var(--green)">
+        <div class="step-num">06</div>
+        <div class="step-body">
+          <h3>Запасний рушій, що ніколи не падає</h3>
+          <p>Якщо AI-сервіс тимчасово недоступний, вмикається локальний помічник і відповідає сам. Магазин і чат працюють завжди.</p>
+          <div class="hint"><span>💡</span><span>Це гарантує, що демонстрація клієнту чи жива вітрина ніколи не «зависнуть» через зовнішній збій.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 4. ДАНІ ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">03</span>Дані</span>
+    <h2 class="section-title reveal">Що зберігається</h2>
+    <p class="section-lead reveal">Два ключові сховища: каталог товарів і журнал усіх розмов з Aria.</p>
+
+    <div class="schemas">
+      <div class="schema reveal">
+        <div class="schema-head">
+          <span class="ic">👗</span><span class="t">products</span><span class="badge">каталог</span>
+        </div>
+        <div class="field"><span class="fname">name</span><span class="ftype">string</span><span class="fdesc">Назва товару — напр. «Camille Wool Overcoat»</span></div>
+        <div class="field"><span class="fname">category</span><span class="ftype">string</span><span class="fdesc">Категорія: верхній одяг, трикотаж, сукні…</span></div>
+        <div class="field"><span class="fname">price</span><span class="ftype">numeric</span><span class="fdesc">Ціна у валюті магазину</span></div>
+        <div class="field"><span class="fname">sizes</span><span class="ftype">jsonb</span><span class="fdesc">Залишки по кожному розміру — щоб AI казав «лишилось 2 в M»</span></div>
+        <div class="field"><span class="fname">image</span><span class="ftype">string</span><span class="fdesc">Посилання на фото (завантажується з панелі)</span></div>
+        <div class="field"><span class="fname">featured</span><span class="ftype">boolean</span><span class="fdesc">Чи показувати в «Бестселерах»</span></div>
+        <div class="field"><span class="fname">created_at</span><span class="ftype">datetime</span><span class="fdesc">Дата додавання — для сортування «Новинки»</span></div>
+      </div>
+
+      <div class="schema reveal d1">
+        <div class="schema-head">
+          <span class="ic">💬</span><span class="t">conversations</span><span class="badge">журнал AI</span>
+        </div>
+        <div class="field"><span class="fname">user_message</span><span class="ftype">string</span><span class="fdesc">Що написав клієнт</span></div>
+        <div class="field"><span class="fname">assistant_message</span><span class="ftype">string</span><span class="fdesc">Що відповіла Aria</span></div>
+        <div class="field"><span class="fname">intent</span><span class="ftype">string</span><span class="fdesc">Тема звернення: розмір, доставка, замовлення…</span></div>
+        <div class="field"><span class="fname">deflected</span><span class="ftype">boolean</span><span class="fdesc">Чи вирішено без участі людини</span></div>
+        <div class="field"><span class="fname">helpful</span><span class="ftype">boolean</span><span class="fdesc">Оцінка клієнта 👍 / 👎</span></div>
+        <div class="field"><span class="fname">language</span><span class="ftype">string</span><span class="fdesc">Мова розмови (EN / ES / FR / UK)</span></div>
+        <div class="field"><span class="fname">created_at</span><span class="ftype">datetime</span><span class="fdesc">Час обміну — для стрічки й аналітики</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 5. PREVIEW ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">04</span>Прев'ю</span>
+    <h2 class="section-title reveal">Як це виглядає</h2>
+    <p class="section-lead reveal">Справжня розмова з Aria — з реальним замовленням і товарами магазину.</p>
+
+    <div class="preview-stage reveal">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="chat-head">
+            <div class="chat-av">A</div>
+            <div>
+              <div class="nm">Aria</div>
+              <div class="st"><span class="pulse-dot"></span>Онлайн · стиль-консьєрж</div>
+            </div>
+          </div>
+          <div class="chat-body">
+            <div class="bub a">Вітаю в ATELIER! Я Aria 👋 Допоможу з розміром, замовленням чи підбором образу. Що вас цікавить?</div>
+
+            <div class="bub u">Де моє замовлення ATL-1024?</div>
+
+            <div class="bub a">Уже в дорозі — кур'єр доставить сьогодні. Ось деталі:</div>
+            <div class="ocard">
+              <div class="ocard-h"><span class="id">ATL-1024</span><span class="stt">В дорозі</span></div>
+              <div class="rail">
+                <span class="dot"></span><span class="seg"></span>
+                <span class="dot"></span><span class="seg"></span>
+                <span class="dot"></span><span class="seg"></span>
+                <span class="dot"></span><span class="seg todo"></span>
+                <span class="dot todo"></span>
+              </div>
+              <div class="ocard-f">📦 <b>Сьогодні до 20:00</b> · DHL Express · DH 4471 9920 18<br />Camille Wool Overcoat (S) · Wren Cashmere Scarf</div>
+            </div>
+
+            <div class="bub u">Я між S і M у Lina Merino Crewneck</div>
+            <div class="bub a">Lina сидить true to size, тож для звичної посадки беріть <b>S</b>, а для вільнішого, oversize-вигляду — <b>M</b>. Підказати, чи є M в наявності?
+              <span class="sm">Джерело: Sizing &amp; Fit</span>
+            </div>
+
+            <div class="bub u">А доставка платна?</div>
+            <div class="bub a">Стандартна доставка <b>безкоштовна для замовлень від $150</b> (3–5 робочих днів). Експрес за 2 дні — $18.
+              <span class="sm">Джерело: Shipping Policy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 6. ЗАПУСК ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">05</span>Запуск</span>
+    <h2 class="section-title reveal">Що потрібно для підключення</h2>
+    <p class="section-lead reveal">П'ять кроків від нуля до живого магазину з AI-консьєржем.</p>
+
+    <div class="steps-list">
+      <div class="lstep reveal"><span class="ln"></span>
+        <div><h3>Створити проєкт Supabase</h3><p>Хмарна база даних, де зберігатимуться акаунти, замовлення, каталог і всі розмови. Безкоштовного тарифу достатньо для старту.</p></div>
+      </div>
+      <div class="lstep reveal"><span class="ln"></span>
+        <div><h3>Застосувати схему даних</h3><p>Готовий набір міграцій створює всі таблиці й налаштовує правила безпеки (хто що бачить). Запускається в кілька кліків.</p></div>
+      </div>
+      <div class="lstep reveal"><span class="ln"></span>
+        <div><h3>Підключити AI-мозок</h3><p>Імпортувати готовий сценарій n8n і вставити ключ OpenAI. Саме тут «живе» інтелект Aria — ключі ніколи не потрапляють у браузер.</p></div>
+      </div>
+      <div class="lstep reveal"><span class="ln"></span>
+        <div><h3>Заповнити налаштування</h3><p>Вказати адреси Supabase та n8n у файлі конфігурації. Без них магазин теж працює — у демо-режимі з тестовими даними.</p></div>
+      </div>
+      <div class="lstep reveal"><span class="ln"></span>
+        <div><h3>Зібрати й розгорнути</h3><p>Одна команда збирає готовий сайт у статичні файли, які розміщуються на будь-якому сервері чи VPS. Оновлення — повторити збірку.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 7. РЕЗУЛЬТАТ ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">06</span>Результат</span>
+    <h2 class="section-title reveal">Що змінюється після запуску</h2>
+    <p class="section-lead reveal">Менше рутини для команди, швидші відповіді для клієнтів, цілодобовий сервіс.</p>
+
+    <div class="results">
+      <div class="result reveal"><div class="figure">~71%</div><p>типових звернень закриває AI без участі оператора</p></div>
+      <div class="result reveal d1"><div class="figure">&lt; 3 с</div><p>від запитання до готової відповіді з наочною карткою</p></div>
+      <div class="result reveal d2"><div class="figure">24/7</div><p>підтримка чотирма мовами, без вихідних і перерв</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ 8. СТЕК ════════════════ -->
+<section>
+  <div class="wrap">
+    <span class="eyebrow reveal"><span class="num">07</span>Стек</span>
+    <h2 class="section-title reveal">Технології під капотом</h2>
+    <p class="section-lead reveal">Сучасні, надійні інструменти — кожен виконує чітку роль.</p>
+
+    <div class="stack">
+      <div class="tech reveal"><div class="ic">⚛️</div><div><h3>React · TypeScript · Vite</h3><p>Швидкий і плавний інтерфейс вітрини та адмін-панелі.</p></div></div>
+      <div class="tech reveal d1"><div class="ic">🗄️</div><div><h3>Supabase · PostgreSQL</h3><p>Акаунти, замовлення, каталог і розмови — із захистом доступу на рівні рядків.</p></div></div>
+      <div class="tech reveal"><div class="ic">🧠</div><div><h3>n8n · GPT-4o</h3><p>Мозок консьєржа Aria: розуміє запит і вирішує, що відповісти.</p></div></div>
+      <div class="tech reveal d1"><div class="ic">🎨</div><div><h3>Tailwind CSS · Zustand</h3><p>Єдина дизайн-система та керування станом застосунку.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand">ATELIER</div>
+    <p>// fashion e-commerce · AI concierge · 2026</p>
+  </div>
+</footer>
+
+<script>
+  // Scroll-reveal: fade elements in as they enter the viewport.
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal:not(.in)').forEach((el) => io.observe(el));
+</script>
+
+</body>
+</html>
